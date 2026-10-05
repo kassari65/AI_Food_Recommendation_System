@@ -1,0 +1,69 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# C/C++ extensions
+*.dll
+*.pyd
+
+# Environments (Virtual Environments)
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*-checkpoint.ipynb
+
+# IDEs & Text Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# Flask / App temporary uploads & generated annotated images
+uploads/*
+!uploads/.gitkeep
+static/annotated/*
+!static/annotated/.gitkeep
+
+# Cache data & vector embeddings
+cache/
+*.pkl
+*.pickle
+
+# YOLO / Ultralytics training & validation runs
+runs/
+YOLO_KetQua/
+
+# Large model weights (tùy chọn: bỏ comment nếu không muốn đẩy weights lên repo)
+# *.pt
+# *.pth
+# *.onnx
+# *.engine
+
+# Logs & Debugging
+*.log
+logs/
+
+# Secrets & Environment variables
+.env
+.env.*
+!.env.example
+
+data

@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AiChef — AI Gợi ý - Bạn vào bếp</title>
+  <meta name="description" content="Upload ảnh nguyên liệu, AI nhận diện và gợi ý món ăn!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800;900&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* ===== RESET & BASE ===== */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #ffea00;
+      /* Vivid yellow */
+      --text: #000000;
+      --text-muted: #333333;
+      --surface: #ffffff;
+      --border: #000000;
+      --accent: #000000;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 30px 60px;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+
+    nav {
+      display: flex;
+      gap: 60px;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: var(--text);
+      transition: opacity 0.2s;
+    }
+
+    nav a:hover {
+      opacity: 0.6;
+    }
+
+    /* ===== MAIN ===== */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 20px 80px;
+    }
+
+    /* ===== HERO SECTION ===== */
+    .hero-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      margin-bottom: 50px;
+    }
+
+    .hero-text {
+      flex: 1;
+      padding-right: 40px;
+    }
+
+    .hero-text h1 {
+      font-size: 4rem;
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    .hero-text p {
+      font-size: 1.2rem;
+      font-weight: 500;
+      font-style: italic;
+      line-height: 1.5;
+      max-width: 480px;
+    }
+
+    .hero-upload {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* ===== UPLOAD ZONE ===== */
+    #drop-zone {
+      width: 100%;
+      max-width: 500px;
+      min-height: 280px;
+      border: 2px dashed var(--border);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    #drop-zone.drag-over {
+      background: rgba(0, 0, 0, 0.05);
+      transform: scale(1.02);
+    }
+
+    .upload-btn {
+      background: transparent;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 28px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 20px;
+      font-family: inherit;
+    }
+
+    .upload-btn:hover {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    .upload-btn svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .upload-btn:hover svg path {
+      fill: var(--bg);
+    }
+
+    .drop-text {
+      font-size: 1.1rem;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    #file-input {
+      display: none;
+    }
+
+    /* ===== HERO IMAGE ===== */
+    .hero-image {
+      width: 100%;
+      height: 450px;
+      object-fit: cover;
+      margin-bottom: 60px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ===== PREVIEW SECTION ===== */
+    #preview-section {
+      display: none;
+      margin-bottom: 40px;
+      animation: fadeUp 0.4s ease;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .preview-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-section {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .hero-text {
+        padding-right: 0;
+        margin-bottom: 40px;
+      }
+
+      .hero-text p {
+        margin: 0 auto;
+      }
+
+      .hero-upload {
+        justify-content: center;
+        width: 100%;
+      }
+
+      header {
+        padding: 20px;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      nav {
+        gap: 30px;
+      }
+    }
+
+    .preview-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .preview-card-header {
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--text);
+      border-bottom: 2px solid var(--border);
+      background: #f0f0f0;
+    }
+
+    .preview-card img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ===== INGREDIENTS TAGS ===== */
+    #ingredients-section {
+      margin-bottom: 40px;
+      animation: fadeUp 0.4s ease;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .tags-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tag {
+      background: #fff;
+      border: 2px solid var(--border);
+      color: #000;
+      padding: 8px 18px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+    }
+
+    /* ===== RECIPE CARDS ===== */
+    #results-section {
+      animation: fadeUp 0.5s ease;
+    }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .results-header h2 {
+      font-size: 2.2rem;
+      font-weight: 900;
+    }
+
+    .result-count {
+      background: #000;
+      color: #fff;
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .recipes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 30px;
+    }
+
+    .recipe-card {
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      box-shadow: 6px 6px 0px rgba(0, 0, 0, 1);
+    }
+
+    .recipe-card:hover {
+      transform: translateY(-4px) translateX(-4px);
+      box-shadow: 10px 10px 0px rgba(0, 0, 0, 1);
+    }
+
+    .card-rank {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 2;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 900;
+      border: 2px solid #000;
+    }
+
+    .rank-1 {
+      background: #FFD700;
+      color: #000;
+    }
+
+    .rank-2 {
+      background: #C0C0C0;
+      color: #000;
+    }
+
+    .rank-3 {
+      background: #CD7F32;
+      color: #fff;
+    }
+
+    .rank-other {
+      background: #fff;
+      color: #000;
+    }
+
+    .card-img-wrap {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .card-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-meta {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .score-bar-wrap {
+      margin-bottom: 16px;
+    }
+
+    .score-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .score-bar {
+      height: 8px;
+      background: #eee;
+      border: 1px solid #000;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .score-fill {
+      height: 100%;
+      background: #000;
+      transition: width 0.8s ease;
+    }
+
+    .card-xai {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .xai-pill {
+      font-size: 0.85rem;
+      padding: 6px 12px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border-left-width: 6px;
+    }
+
+    .xai-pill.good {
+      border-left-color: #43e97b;
+    }
+
+    .xai-pill.warn {
+      border-left-color: #ff9f43;
+    }
+
+    .xai-pill.bad {
+      border-left-color: #ff6b6b;
+    }
+
+    .xai-pill.info {
+      border-left-color: #6c63ff;
+    }
+
+    /* ===== MODAL ===== */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(4px);
+      animation: fadeIn 0.2s ease;
+    }
+
+    #modal-overlay.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #modal-box {
+      background: var(--surface);
+      border: 3px solid var(--border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 12px 12px 0px rgba(0, 0, 0, 1);
+      animation: slideUp 0.3s ease;
+    }
+
+    .modal-hero {
+      position: relative;
+      height: 300px;
+      overflow: hidden;
+      border-bottom: 3px solid var(--border);
+    }
+
+    .modal-hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .modal-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 50%);
+      display: flex;
+      align-items: flex-end;
+      padding: 30px;
+    }
+
+    .modal-hero-title {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.2;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      background: #fff;
+      border: 3px solid #000;
+      border-radius: 50%;
+      color: #000;
+      font-size: 1.2rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px rgba(0, 0, 0, 1);
+    }
+
+    .modal-body {
+      padding: 30px;
+    }
+
+    .modal-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .stat-box {
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+    }
+
+    .stat-val {
+      font-size: 1.8rem;
+      font-weight: 900;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .modal-section {
+      margin-bottom: 30px;
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 6px 6px 0px rgba(0, 0, 0, 1);
+    }
+
+    .modal-section-title {
+      font-size: 1.2rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .modal-xai {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .modal-xai-item {
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: 2px solid var(--border);
+    }
+
+    .modal-xai-item.good {
+      background: #d4edda;
+    }
+
+    .modal-xai-item.warn {
+      background: #fff3cd;
+    }
+
+    .modal-xai-item.bad {
+      background: #f8d7da;
+    }
+
+    .modal-xai-item.info {
+      background: #e2e3e5;
+    }
+
+    .ingredient-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .ing-chip {
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      min-width: 32px;
+      height: 32px;
+      background: #000;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 800;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .step-text {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    /* ===== LOADING ===== */
+    #loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: var(--bg);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    #loading-overlay.active {
+      display: flex;
+    }
+
+    .spinner {
+      width: 64px;
+      height: 64px;
+      border: 6px solid rgba(0, 0, 0, 0.1);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .loading-text {
+      font-size: 1.5rem;
+      font-weight: 900;
+    }
+
+    .loading-steps {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    .empty-state .emoji {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ===== UPLOAD TIPS ===== */
+    .upload-tips {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 0.82rem;
+      font-weight: 600;
+      line-height: 2;
+      color: #444;
+      width: 100%;
+      border-top: 1px dashed #999;
+      padding-top: 16px;
+    }
+
+    .upload-tips-title {
+      font-weight: 900;
+      font-size: 0.88rem;
+      margin-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #000;
+    }
+
+    /* ===== COLD-START SCREENS ===== */
+    .cold-start-screen {
+      background: #fff;
+      border: 2px solid #000;
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      box-shadow: 6px 6px 0px rgba(0, 0, 0, 1);
+      max-width: 600px;
+      margin: 60px auto;
+      animation: fadeUp 0.4s ease;
+    }
+
+    .cs-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+
+    .cs-title {
+      font-size: 1.4rem;
+      font-weight: 900;
+      margin-bottom: 20px;
+      line-height: 1.3;
+    }
+
+    .cs-detected {
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+
+    .cs-reasons {
+      text-align: left;
+      background: #fff9e6;
+      border: 1px solid #f0c040;
+      border-left: 4px solid #f0c040;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      line-height: 2;
+    }
+
+    .cs-tips {
+      text-align: left;
+      background: #e8f8ef;
+      border: 1px solid #43e97b;
+      border-left: 4px solid #43e97b;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      line-height: 2;
+    }
+
+    .cs-categories {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .cs-cat-chip {
+      background: var(--bg);
+      border: 2px solid #000;
+      border-radius: 50px;
+      padding: 8px 20px;
+      font-size: 1rem;
+      font-weight: 800;
+      box-shadow: 3px 3px 0px rgba(0, 0, 0, 1);
+    }
+
+    .cs-retry-btn {
+      background: #000;
+      color: #fff;
+      border: 2px solid #000;
+      border-radius: 12px;
+      padding: 14px 32px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+    }
+
+    .cs-retry-btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.6);
+    }
+
+    /* ===== CS-3: LOW SCORE BANNER ===== */
+    #cs-low-score-banner {
+      background: #fff9e6;
+      border: 2px solid #f0c040;
+      border-left: 6px solid #f0c040;
+      border-radius: 12px;
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      animation: fadeUp 0.3s ease;
+    }
+
+    .cs-banner-btn {
+      margin-left: auto;
+      background: transparent;
+      border: 2px solid #000;
+      border-radius: 8px;
+      padding: 7px 16px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .cs-banner-btn:hover {
+      background: #000;
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">AiChef</div>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">Recipe</a>
+    </nav>
+    <div style="width:80px;"></div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <div class="hero-section" id="hero-section">
+      <div class="hero-text">
+        <h1>AI GỢI Ý -<br>BẠN VÀO BẾP</h1>
+        <p>Hệ thống phân tích thông minh giúp bạn tự tin vào bếp, tiết kiệm thời gian và đảm bảo dinh dưỡng.</p>
+      </div>
+      <div class="hero-upload">
+        <div id="drop-zone">
+          <button class="upload-btn" onclick="document.getElementById('file-input').click()">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 16L12 8" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M9 11L12 8 15 11" stroke="black" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M4 14V17C4 18.1046 4.89543 19 6 19H18C19.1046 19 20 18.1046 20 17V14" stroke="black"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            UPLOAD IMAGE HERE
+          </button>
+          <div class="drop-text">Kéo & thả ảnh nguyên liệu vào đây<br>AI sẽ phân tích và gợi ý món ăn tốt nhất cho bạn
+          </div>
+          <div class="upload-tips">
+            <div class="upload-tips-title">💡 Ảnh tốt nhất khi:</div>
+            ✅ Nguyên liệu còn thô, chưa nấu<br>
+            ✅ Trải ra rõ ràng, không chồng nhau<br>
+            ✅ Ảnh sáng, không mờ<br>
+            ❌ Tránh ảnh món ăn đã nấu xong<br>
+            ❌ Tránh ảnh có chữ / logo / watermark đè lên<br>
+            ❌ Tránh ảnh ghép / collage nhiều ảnh — hãy upload từng ảnh riêng<br>
+            ❌ Tránh ảnh quá mờ hoặc độ phân giải thấp
+          </div>
+        </div>
+        <input type="file" id="file-input" accept="image/*" />
+      </div>
+    </div>
+
+    <img src="https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=1200"
+      alt="Ramen bowl" class="hero-image" id="hero-image">
+
+    <!-- Preview Section -->
+    <div id="preview-section">
+      <div class="preview-grid">
+        <div class="preview-card">
+          <div class="preview-card-header">📷 Ảnh gốc</div>
+          <img id="original-img" src="" alt="Ảnh gốc" />
+        </div>
+        <div class="preview-card">
+          <div class="preview-card-header">🔍 YOLO đã nhận diện</div>
+          <img id="annotated-img" src="" alt="Ảnh đã nhận diện" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Ingredients Section -->
+    <div id="ingredients-section" style="display:none">
+      <div class="section-title">🥦 Nguyên liệu phát hiện được</div>
+      <div class="tags-wrap" id="ingredient-tags"></div>
+    </div>
+
+    <!-- CS-3: Score thấp — hiện banner nhỏ phía trên kết quả -->
+    <div id="cs-low-score-banner" style="display:none">
+      <span>🤔 AI chưa tìm được công thức khớp hoàn toàn — kết quả dưới đây là gợi ý gần nhất theo ngữ nghĩa</span>
+      <button class="cs-banner-btn" onclick="document.getElementById('file-input').click()">🖼️ Thử ảnh khác</button>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results-section" style="display:none">
+      <div class="results-header">
+        <h2>🏆 Top 10 món ăn gợi ý</h2>
+        <span class="result-count" id="result-count-badge">5 món</span>
+      </div>
+      <div class="recipes-grid" id="recipes-grid"></div>
+    </div>
+
+    <!-- CS-1: YOLO không detect được gì -->
+    <div id="no-result-section" style="display:none">
+      <div class="cold-start-screen">
+        <div class="cs-icon">📷</div>
+        <div class="cs-title">AI chưa nhận ra nguyên liệu trong ảnh này</div>
+        <div class="cs-reasons">
+          <strong>Có thể do:</strong><br>
+          • Ảnh tối, mờ hoặc chất lượng thấp<br>
+          • Nguyên liệu bị bọc / che khuất<br>
+          • Ảnh là món đã nấu — AI cần nguyên liệu thô chưa chế biến<br>
+          • Ảnh có chữ / logo / watermark đè lên<br>
+          • Ảnh ghép nhiều khung hình
+        </div>
+        <div class="cs-tips">
+          <strong>💡 Thử upload ảnh khác:</strong><br>
+          → Ảnh rõ, đủ sáng<br>
+          → Nguyên liệu thô, trải ra rõ ràng<br>
+          → 1 ảnh đơn, không watermark
+        </div>
+        <button class="cs-retry-btn" onclick="document.getElementById('file-input').click()">
+          🖼️ Chọn ảnh khác
+        </button>
+      </div>
+    </div>
+
+    <!-- CS-2: Chỉ detect được gia vị -->
+    <div id="cs-condiment-section" style="display:none">
+      <div class="cold-start-screen">
+        <div class="cs-icon">🧄</div>
+        <div class="cs-title">AI chỉ thấy gia vị</div>
+        <div class="cs-detected" id="cs-condiment-detected"></div>
+        <p style="font-size:1rem; font-weight:600; margin:12px 0 16px; color:#333; line-height:1.7">
+          Gia vị không đủ để gợi ý món ăn.<br>
+          Hãy upload ảnh có thêm nguyên liệu chính:
+        </p>
+        <div class="cs-categories">
+          <span class="cs-cat-chip">🥩 Thịt</span>
+          <span class="cs-cat-chip">🐟 Cá</span>
+          <span class="cs-cat-chip">🦐 Hải sản</span>
+          <span class="cs-cat-chip">🥚 Trứng</span>
+          <span class="cs-cat-chip">🥦 Rau củ</span>
+          <span class="cs-cat-chip">🍚 Tinh bột</span>
+        </div>
+        <button class="cs-retry-btn" onclick="document.getElementById('file-input').click()">
+          🖼️ Chọn ảnh khác
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- LOADING OVERLAY -->
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Đang phân tích ảnh...</div>
+    <div class="loading-steps" id="loading-step">🔍 YOLO đang quét nguyên liệu...</div>
+  </div>
+
+  <!-- MODAL OVERLAY -->
+  <div id="modal-overlay">
+    <div id="modal-box">
+      <div class="modal-hero">
+        <img id="modal-img" src="" alt="" />
+        <div class="modal-hero-overlay">
+          <div id="modal-title" class="modal-hero-title"></div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-stats">
+          <div class="stat-box">
+            <div class="stat-val" id="modal-score">—</div>
+            <div class="stat-label">📊 Tổng điểm AI</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="modal-time">—</div>
+            <div class="stat-label">⏱️ Thời gian nấu</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="modal-likes">—</div>
+            <div class="stat-label">❤️ Lượt yêu thích</div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <div class="modal-section-title">💡 Giải thích từ AI (XAI)</div>
+          <div class="modal-xai" id="modal-xai"></div>
+        </div>
+
+        <div class="modal-section">
+          <div class="modal-section-title">🛒 Nguyên liệu cần có</div>
+          <div class="ingredient-list" id="modal-ingredients"></div>
+        </div>
+
+        <div class="modal-section" id="modal-steps-section">
+          <div class="modal-section-title">📋 Các bước thực hiện</div>
+          <div class="steps-list" id="modal-steps"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== DRAG & DROP =====
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+
+    dropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) handleFile(file);
+    });
+    dropZone.addEventListener('click', (e) => {
+      if (e.target.closest('button')) return;
+      fileInput.click();
+    });
+    fileInput.addEventListener('change', e => {
+      if (e.target.files[0]) handleFile(e.target.files[0]);
+    });
+
+    // ===== XAI CLASSIFIER =====
+    function classifyXai(text) {
+      if (text.startsWith('✅')) return 'good';
+      if (text.startsWith('🎯')) return 'good';
+      if (text.startsWith('⚠️')) return 'bad';
+      if (text.startsWith('🛒')) return 'warn';
+      return 'info';
+    }
+
+    function scorePercent(score) {
+      return Math.min(Math.round((score / 10) * 100), 100);
+    }
+
+    function rankBadge(i) {
+      const medalLabels = ['🥇', '🥈', '🥉'];
+      const label = i < 3 ? medalLabels[i] : (i + 1).toString();
+      const cls = i < 3 ? `rank-${i+1}` : 'rank-other';
+      return `<div class="card-rank ${cls}">${label}</div>`;
+    }
+
+    // ===== HANDLE FILE =====
+    function handleFile(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('original-img').src = e.target.result;
+        document.getElementById('preview-section').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+
+      document.getElementById('ingredients-section').style.display = 'none';
+      document.getElementById('results-section').style.display = 'none';
+      document.getElementById('no-result-section').style.display = 'none';
+      document.getElementById('cs-condiment-section').style.display = 'none';
+      document.getElementById('cs-low-score-banner').style.display = 'none';
+
+      // Hide hero section when upload starts to focus on results
+      const heroImg = document.getElementById('hero-image');
+      if (heroImg) heroImg.style.display = 'none';
+
+      uploadAndPredict(file);
+    }
+
+    // ===== UPLOAD =====
+    async function uploadAndPredict(file) {
+      const loading = document.getElementById('loading-overlay');
+      const loadingStep = document.getElementById('loading-step');
+      loading.classList.add('active');
+
+      const steps = [
+        '🔍 YOLO đang quét nguyên liệu...',
+        '🧠 PhoBERT đang tính Vector ngữ nghĩa...',
+        '⚡ XAI Rule Engine đang chấm điểm...',
+        '🏆 Đang xếp hạng top 10 món ăn...'
+      ];
+      let si = 0;
+      const stepInterval = setInterval(() => {
+        si = (si + 1) % steps.length;
+        loadingStep.textContent = steps[si];
+      }, 1500);
+
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const res = await fetch('/api/predict', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+
+        clearInterval(stepInterval);
+        loading.classList.remove('active');
+
+        if (data.error) {
+          alert('Lỗi: ' + data.error);
+          return;
+        }
+
+        document.getElementById('annotated-img').src = data.annotated_image + '?t=' + Date.now();
+
+        // Reset tất cả cold-start screens trước khi xử lý kết quả mới
+        document.getElementById('no-result-section').style.display = 'none';
+        document.getElementById('cs-condiment-section').style.display = 'none';
+        document.getElementById('cs-low-score-banner').style.display = 'none';
+
+        if (!data.ingredients || data.ingredients.length === 0) {
+          // CS-1: YOLO không detect được gì
+          document.getElementById('no-result-section').style.display = 'block';
+          return;
+        }
+
+        const tagsWrap = document.getElementById('ingredient-tags');
+        tagsWrap.innerHTML = data.ingredients.map(ing => `<span class="tag">${ing}</span>`).join('');
+        document.getElementById('ingredients-section').style.display = 'block';
+
+        if (data.cold_start_type === 'condiment_only') {
+          // CS-2: Chỉ có gia vị — chặn kết quả
+          document.getElementById('cs-condiment-detected').textContent =
+            `Đã nhận ra: ${data.ingredients.join(', ')}`;
+          document.getElementById('cs-condiment-section').style.display = 'block';
+          return;
+        }
+
+        if (data.cold_start_type === 'low_score') {
+          // CS-3: Score thấp — vẫn hiện kết quả nhưng thêm banner
+          document.getElementById('cs-low-score-banner').style.display = 'flex';
+        }
+
+        renderRecipes(data.recipes);
+
+      } catch (err) {
+        clearInterval(stepInterval);
+        loading.classList.remove('active');
+        alert('Có lỗi xảy ra: ' + err.message);
+      }
+    }
+
+    // ===== RENDER RECIPE CARDS =====
+    let currentRecipes = [];
+
+    function renderRecipes(recipes) {
+      currentRecipes = recipes;
+      const grid = document.getElementById('recipes-grid');
+      document.getElementById('result-count-badge').textContent = recipes.length + ' món';
+
+      if (!recipes.length) {
+        document.getElementById('no-result-section').style.display = 'block';
+        return;
+      }
+
+      grid.innerHTML = recipes.map((r, i) => {
+        const imgSrc = r.image_url || 'https://via.placeholder.com/400x200/ffffff/000000?text=No+Image';
+        const xaiPills = r.explanations.slice(0, 2).map(e =>
+          `<div class="xai-pill ${classifyXai(e)}">${e}</div>`
+        ).join('');
+
+        return `
+    <div class="recipe-card" onclick="openModal(${i})">
+      ${rankBadge(i)}
+      <div class="card-img-wrap">
+        <img src="${imgSrc}" alt="${r.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x200/ffffff/000000?text=No+Image'" />
+      </div>
+      <div class="card-body">
+        <div class="card-title">${r.title}</div>
+        <div class="card-meta">
+          <span>⏱️ ${r.cook_time > 0 && r.cook_time < 9999999 ? r.cook_time + ' phút' : 'Không rõ'}</span>
+          <span>❤️ ${r.likes_count} thích</span>
+        </div>
+        <div class="score-bar-wrap">
+          <div class="score-label"><span>Độ phù hợp</span><span>${scorePercent(r.total_score)}%</span></div>
+          <div class="score-bar"><div class="score-fill" style="width: ${scorePercent(r.total_score)}%"></div></div>
+        </div>
+        <div class="card-xai">${xaiPills}</div>
+      </div>
+    </div>`;
+      }).join('');
+
+      document.getElementById('results-section').style.display = 'block';
+
+      setTimeout(() => {
+        document.querySelectorAll('.score-fill').forEach(el => {
+          el.style.width = el.style.width;
+        });
+      }, 100);
+    }
+
+    // ===== MODAL =====
+    function openModal(idx) {
+      const r = currentRecipes[idx];
+      if (!r) return;
+
+      document.getElementById('modal-img').src = r.image_url ||
+        'https://via.placeholder.com/800x300/ffffff/000000?text=No+Image';
+      document.getElementById('modal-img').onerror = function () {
+        this.src = 'https://via.placeholder.com/800x300/ffffff/000000?text=No+Image';
+      };
+      document.getElementById('modal-title').textContent = r.title;
+      document.getElementById('modal-score').textContent = r.total_score + ' đ';
+      document.getElementById('modal-time').textContent = (r.cook_time > 0 && r.cook_time < 9999999) ? r.cook_time +
+        ' phút' : 'Không rõ';
+      document.getElementById('modal-likes').textContent = r.likes_count;
+
+      document.getElementById('modal-xai').innerHTML = r.explanations.length ?
+        r.explanations.map(e => `<div class="modal-xai-item ${classifyXai(e)}">${e}</div>`).join('') :
+        '<div class="modal-xai-item info">Món ăn phù hợp cơ bản với nguyên liệu của bạn.</div>';
+
+      document.getElementById('modal-ingredients').innerHTML = r.ingredients
+        .map(ing => `<span class="ing-chip">${ing}</span>`).join('');
+
+      const stepsEl = document.getElementById('modal-steps');
+      const stepsSection = document.getElementById('modal-steps-section');
+      if (r.steps && r.steps.length > 0) {
+        stepsEl.innerHTML = r.steps.map((step, i) =>
+          `<div class="step-item">
+        <div class="step-num">${i+1}</div>
+        <div class="step-text">${step}</div>
+      </div>`
+        ).join('');
+        stepsSection.style.display = 'block';
+      } else {
+        stepsSection.style.display = 'none';
+      }
+
+      document.getElementById('modal-overlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('modal-overlay').addEventListener('click', function (e) {
+      if (e.target === this) closeModal();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
+</body>
+
+</html>
